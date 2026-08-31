@@ -8,15 +8,18 @@ import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import AMCPlanSection from "@/components/sections/AMCPlanSection";
 import ReviewsCarousel from "@/components/sections/ReviewsCarousel";
 import { DoctorsGrid } from "@/components/sections/DoctorsGrid";
+import { BlogSection } from "@/components/sections/BlogSection";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Button from "@/components/ui/Button";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { getTreatments } from "@/app/actions/treatments";
+import { getBlogs } from "@/app/actions/blogs";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const treatments = await getTreatments();
+  const blogs = await getBlogs();
   return (
     <div className="flex flex-col gap-0">
       {/* 1. Hero Block */}
@@ -135,6 +138,9 @@ export default async function Home() {
           <ReviewsCarousel />
         </div>
       </section>
+
+      {/* 6.5. Blog Section */}
+      <BlogSection blogs={blogs} />
 
       {/* 7. Bottom Appointment CTA */}
       <section className="pt-6 pb-12 md:pt-10 md:pb-20 bg-gradient-to-tr from-lavender-bg via-white to-lavender-bg border-t border-slate-200/40">

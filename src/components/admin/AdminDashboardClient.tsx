@@ -14,11 +14,13 @@ import {
   Check, 
   AlertCircle,
   Upload,
-  ArrowLeft
+  ArrowLeft,
+  BookOpen
 } from "lucide-react";
 import { loginAdmin, logoutAdmin } from "@/app/actions/auth";
 import { createGalleryItem, deleteGalleryItem } from "@/app/actions/gallery";
 import { createTreatment, updateTreatment, deleteTreatment } from "@/app/actions/treatments";
+import { createBlog, updateBlog, deleteBlog } from "@/app/actions/blogs";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 
@@ -26,14 +28,16 @@ interface AdminDashboardClientProps {
   isAuthenticated: boolean;
   initialTreatments: any[];
   initialGallery: any[];
+  initialBlogs: any[];
 }
 
 export const AdminDashboardClient: React.FC<AdminDashboardClientProps> = ({
   isAuthenticated,
   initialTreatments,
-  initialGallery
+  initialGallery,
+  initialBlogs
 }) => {
-  const [activeTab, setActiveTab] = useState<"treatments" | "gallery">("treatments");
+  const [activeTab, setActiveTab] = useState<"treatments" | "gallery" | "blogs">("treatments");
   
   // Auth state
   const [password, setPassword] = useState("");
@@ -43,12 +47,15 @@ export const AdminDashboardClient: React.FC<AdminDashboardClientProps> = ({
   // Lists state
   const [treatments, setTreatments] = useState(initialTreatments);
   const [gallery, setGallery] = useState(initialGallery);
+  const [blogs, setBlogs] = useState(initialBlogs);
   const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Form modals state
   const [showGalleryForm, setShowGalleryForm] = useState(false);
   const [showTreatmentForm, setShowTreatmentForm] = useState(false);
+  const [showBlogForm, setShowBlogForm] = useState(false);
   const [editingTreatmentId, setEditingTreatmentId] = useState<string | null>(null);
+  const [editingBlogId, setEditingBlogId] = useState<string | null>(null);
 
   // File upload state
   const [uploading, setUploading] = useState(false);
@@ -74,6 +81,17 @@ export const AdminDashboardClient: React.FC<AdminDashboardClientProps> = ({
     whoIsItFor: [""] as string[],
     process: [{ title: "", description: "" }] as { title: string; description: string }[],
     faqs: [{ question: "", answer: "" }] as { question: string; answer: string }[]
+  });
+
+  // Blog Form State
+  const [blogForm, setBlogForm] = useState({
+    title: "",
+    excerpt: "",
+    intro: "",
+    points: [{ title: "", body: "" }] as { title: string; body: string }[],
+    imageUrl: "",
+    category: "Dental Care",
+    readTime: "5 min read"
   });
 
   const showStatus = (type: "success" | "error", text: string) => {
@@ -106,7 +124,7 @@ export const AdminDashboardClient: React.FC<AdminDashboardClientProps> = ({
   };
 
   // Image Upload Helper
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, formType: "gallery" | "treatment") => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, formType: "gallery" | "treatment" | "blog") => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -124,8 +142,10 @@ export const AdminDashboardClient: React.FC<AdminDashboardClientProps> = ({
       if (base64String) {
         if (formType === "gallery") {
           setGalleryForm(prev => ({ ...prev, imageUrl: base64String }));
-        } else {
+        } else if (formType === "treatment") {
           setTreatmentForm(prev => ({ ...prev, imageUrl: base64String }));
+        } else {
+          setBlogForm(prev => ({ ...prev, imageUrl: base64String }));
         }
         showStatus("success", "Image loaded successfully");
       } else {
@@ -175,6 +195,179 @@ export const AdminDashboardClient: React.FC<AdminDashboardClientProps> = ({
     } catch (err) {
       showStatus("error", "Failed to delete image");
     }
+  };
+
+  // Helper to parse HTML back to Blog intro and points
+  const parseHtmlToBlogFields = (html: string) => {
+    if (typeof window === "undefined") {
+      return { intro: "", points: [{ title: "", body: "" }] };
+    }
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const h2s = Array.from(doc.querySelectorAll("h2"));
+    
+    let intro = "";
+    const points: { title: string; body: string }[] = [];
+    
+    h2s.forEach((h2) => {
+      const headingText = h2.textContent || "";
+      let bodyText = "";
+      let sibling = h2.nextElementSibling;
+      while (sibling && sibling.tagName !== "H2") {
+        bodyText += sibling.textContent + "\n";
+        sibling = sibling.nextElementSibling;
+      }
+      bodyText = bodyText.trim();
+      
+      if (headingText.toLowerCase() === "introduction") {
+        intro = bodyText;
+      } else {
+        points.push({ title: headingText, body: bodyText });
+      }
+    });
+
+    if (h2s.length === 0 && html) {
+      intro = doc.body.textContent || "";
+    }
+    
+    return { intro, points };
+  };
+
+  // Helper to compile Blog intro and points back to HTML
+  const compileBlogFieldsToHtml = (intro: string, points: { title: string; body: string }[]) => {
+    let html = "";
+    if (intro.trim()) {
+      html += `<h2>Introduction</h2>\n`;
+      const paragraphs = intro.split("\n").filter(p => p.trim());
+      paragraphs.forEach(p => {
+        html += `<p>${p.trim()}</p>\n`;
+      });
+      html += `\n`;
+    }
+    
+    points.forEach((pt) => {
+      if (pt.title.trim() || pt.body.trim()) {
+        html += `<h2>${pt.title.trim()}</h2>\n`;
+        const paragraphs = pt.body.split("\n").filter(p => p.trim());
+        paragraphs.forEach(p => {
+          html += `<p>${p.trim()}</p>\n`;
+        });
+        html += `\n`;
+      }
+    });
+    
+    return html.trim();
+  };
+
+  // Blog Handlers
+  const handleBlogSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!blogForm.imageUrl) {
+      showStatus("error", "Please provide a blog image");
+      return;
+    }
+
+    const compiledContent = compileBlogFieldsToHtml(blogForm.intro, blogForm.points);
+    const payload = {
+      title: blogForm.title,
+      excerpt: blogForm.excerpt,
+      content: compiledContent,
+      imageUrl: blogForm.imageUrl,
+      category: blogForm.category,
+      readTime: blogForm.readTime
+    };
+
+    try {
+      if (editingBlogId) {
+        const res = await updateBlog(editingBlogId, payload);
+        if (res.success && res.blog) {
+          const updated = {
+            id: res.blog._id ? res.blog._id.toString() : res.blog.id,
+            slug: res.blog.slug,
+            title: res.blog.title,
+            excerpt: res.blog.excerpt,
+            content: res.blog.content,
+            imageUrl: res.blog.imageUrl,
+            category: res.blog.category,
+            readTime: res.blog.readTime,
+            createdAt: res.blog.createdAt,
+            updatedAt: res.blog.updatedAt
+          };
+          setBlogs(prev => prev.map(b => b.id === editingBlogId ? updated : b));
+          setShowBlogForm(false);
+          showStatus("success", "Blog post updated successfully");
+        } else {
+          showStatus("error", res.error || "Failed to update blog post");
+        }
+      } else {
+        const res = await createBlog(payload);
+        if (res.success && res.blog) {
+          const inserted = {
+            id: res.blog._id ? res.blog._id.toString() : res.blog.id,
+            slug: res.blog.slug,
+            title: res.blog.title,
+            excerpt: res.blog.excerpt,
+            content: res.blog.content,
+            imageUrl: res.blog.imageUrl,
+            category: res.blog.category,
+            readTime: res.blog.readTime,
+            createdAt: res.blog.createdAt,
+            updatedAt: res.blog.updatedAt
+          };
+          setBlogs(prev => [inserted, ...prev]);
+          setShowBlogForm(false);
+          showStatus("success", "Blog post created successfully");
+        } else {
+          showStatus("error", res.error || "Failed to create blog post");
+        }
+      }
+    } catch (err) {
+      showStatus("error", "Error saving blog post data");
+    }
+  };
+
+  const handleBlogDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this blog post? This will break its dynamic route pages.")) return;
+    try {
+      const res = await deleteBlog(id);
+      if (res.success) {
+        setBlogs(prev => prev.filter(b => b.id !== id));
+        showStatus("success", "Blog post deleted successfully");
+      } else {
+        showStatus("error", res.error || "Failed to delete blog post");
+      }
+    } catch (err) {
+      showStatus("error", "Error deleting blog post");
+    }
+  };
+
+  const openNewBlogForm = () => {
+    setEditingBlogId(null);
+    setBlogForm({
+      title: "",
+      excerpt: "",
+      intro: "",
+      points: [{ title: "", body: "" }],
+      imageUrl: "",
+      category: "Dental Care",
+      readTime: "5 min read"
+    });
+    setShowBlogForm(true);
+  };
+
+  const openEditBlogForm = (blog: any) => {
+    setEditingBlogId(blog.id);
+    const parsed = parseHtmlToBlogFields(blog.content);
+    setBlogForm({
+      title: blog.title,
+      excerpt: blog.excerpt,
+      intro: parsed.intro,
+      points: parsed.points.length > 0 ? parsed.points : [{ title: "", body: "" }],
+      imageUrl: blog.imageUrl,
+      category: blog.category,
+      readTime: blog.readTime
+    });
+    setShowBlogForm(true);
   };
 
   // Treatment Form Helpers
@@ -452,6 +645,17 @@ export const AdminDashboardClient: React.FC<AdminDashboardClientProps> = ({
           >
             <ImageIcon className="h-4 w-4" />
             <span>Photo Gallery ({gallery.length})</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("blogs")}
+            className={`px-6 py-3 border-b-2 font-display font-bold text-sm tracking-wide transition-smooth flex items-center gap-2 cursor-pointer ${
+              activeTab === "blogs"
+                ? "border-secondary text-secondary"
+                : "border-transparent text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            <BookOpen className="h-4 w-4" />
+            <span>Clinic Blogs ({blogs.length})</span>
           </button>
         </div>
 
@@ -909,6 +1113,273 @@ export const AdminDashboardClient: React.FC<AdminDashboardClientProps> = ({
                       </div>
                     </Card>
                   ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* BLOGS TAB VIEW */}
+        {/* ============================================================== */}
+        {activeTab === "blogs" && (
+          <div>
+            {showBlogForm ? (
+              <Card className="p-8 border border-slate-200/80 bg-white max-w-2xl mx-auto">
+                <h3 className="font-display font-extrabold text-2xl text-primary mb-6">
+                  {editingBlogId ? "Edit Blog Post" : "Add New Blog Post"}
+                </h3>
+                
+                <form onSubmit={handleBlogSubmit} className="space-y-5">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-display font-bold uppercase text-slate-400">Post Title</label>
+                    <input
+                      required
+                      className="border border-slate-200 rounded-xl px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-secondary"
+                      placeholder="e.g. 7 Simple Ways to Keep Your Teeth Healthy"
+                      value={blogForm.title}
+                      onChange={e => setBlogForm(prev => ({ ...prev, title: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs font-display font-bold uppercase text-slate-400">Category Tag</label>
+                      <input
+                        required
+                        className="border border-slate-200 rounded-xl px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-secondary"
+                        placeholder="e.g. Prevention"
+                        value={blogForm.category}
+                        onChange={e => setBlogForm(prev => ({ ...prev, category: e.target.value }))}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs font-display font-bold uppercase text-slate-400">Read Duration</label>
+                      <input
+                        required
+                        className="border border-slate-200 rounded-xl px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-secondary"
+                        placeholder="e.g. 4 min read"
+                        value={blogForm.readTime}
+                        onChange={e => setBlogForm(prev => ({ ...prev, readTime: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-display font-bold uppercase text-slate-400">Short Excerpt</label>
+                    <textarea
+                      required
+                      className="border border-slate-200 rounded-xl px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-secondary h-20"
+                      placeholder="A short snippet explaining what the blog article is about..."
+                      value={blogForm.excerpt}
+                      onChange={e => setBlogForm(prev => ({ ...prev, excerpt: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-display font-bold uppercase text-slate-400">
+                      Introduction Paragraph
+                    </label>
+                    <textarea
+                      required
+                      className="border border-slate-200 rounded-xl px-4 py-2.5 font-sans text-sm focus:outline-none focus:border-secondary h-24"
+                      placeholder="Introductory paragraph or summary text of the article..."
+                      value={blogForm.intro}
+                      onChange={e => setBlogForm(prev => ({ ...prev, intro: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-xs font-display font-bold uppercase text-slate-400 block mb-1">
+                      Article Points / Sections
+                    </label>
+                    {blogForm.points.map((point, index) => (
+                      <div key={index} className="border border-slate-100 bg-slate-50/50 p-4 rounded-2xl relative space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-sans font-bold text-slate-500">Point #{index + 1}</span>
+                          {blogForm.points.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setBlogForm(prev => ({
+                                  ...prev,
+                                  points: prev.points.filter((_, i) => i !== index)
+                                }));
+                              }}
+                              className="text-xs font-sans font-semibold text-red-500 hover:text-red-700 flex items-center gap-1 cursor-pointer"
+                            >
+                              <MinusCircle className="h-3.5 w-3.5" />
+                              <span>Remove</span>
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          <input
+                            required
+                            className="border border-slate-200/80 bg-white rounded-xl px-3 py-2 font-sans text-xs focus:outline-none focus:border-secondary"
+                            placeholder="Heading or Title of this point (e.g. 1. Brush Twice a Day)"
+                            value={point.title}
+                            onChange={e => {
+                              const newPoints = [...blogForm.points];
+                              newPoints[index].title = e.target.value;
+                              setBlogForm(prev => ({ ...prev, points: newPoints }));
+                            }}
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          <textarea
+                            required
+                            className="border border-slate-200/80 bg-white rounded-xl px-3 py-2 font-sans text-xs focus:outline-none focus:border-secondary h-24 resize-y"
+                            placeholder="Body text or details for this point..."
+                            value={point.body}
+                            onChange={e => {
+                              const newPoints = [...blogForm.points];
+                              newPoints[index].body = e.target.value;
+                              setBlogForm(prev => ({ ...prev, points: newPoints }));
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setBlogForm(prev => ({
+                          ...prev,
+                          points: [...prev.points, { title: "", body: "" }]
+                        }));
+                      }}
+                      className="flex items-center gap-2 border-slate-200 text-slate-600 text-xs font-semibold mt-2"
+                    >
+                      <PlusCircle className="h-4 w-4 text-secondary" />
+                      <span>Add Another Point</span>
+                    </Button>
+                  </div>
+
+                  {/* Upload Image File Input */}
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-display font-bold uppercase text-slate-400 flex items-center gap-1.5">
+                      <Upload className="h-3.5 w-3.5 text-secondary" />
+                      <span>Upload Banner Image</span>
+                    </label>
+                    <div className="flex items-center gap-4">
+                      {blogForm.imageUrl && (
+                        <div className="h-16 w-24 rounded-xl overflow-hidden border border-slate-200/80 bg-slate-100 shrink-0">
+                          <img src={blogForm.imageUrl} alt="Blog preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      <div className="relative border border-dashed border-slate-200 bg-slate-50/50 rounded-xl p-3 flex items-center justify-between text-xs font-sans grow">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                          onChange={e => handleImageUpload(e, "blog")}
+                          disabled={uploading}
+                        />
+                        <span className="text-slate-400 pl-2">
+                          {uploading ? "Uploading..." : blogForm.imageUrl ? "Change file..." : "Click to select file"}
+                        </span>
+                        <Button type="button" variant="outline" size="sm" className="pointer-events-none text-[10px] py-1 px-2.5">
+                          Browse
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                    <Button type="button" variant="outline" onClick={() => setShowBlogForm(false)} className="font-semibold text-sm">
+                      Cancel
+                    </Button>
+                    <Button type="submit" variant="secondary" className="font-semibold text-sm">
+                      {editingBlogId ? "Save Changes" : "Create Post"}
+                    </Button>
+                  </div>
+                </form>
+              </Card>
+            ) : (
+              <div>
+                {/* Header Actions */}
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-display font-bold text-lg text-primary">
+                    All Blog Posts
+                  </h3>
+                  <Button onClick={openNewBlogForm} variant="secondary" size="sm" className="flex items-center gap-2 font-semibold">
+                    <Plus className="h-4 w-4" />
+                    <span>Create Blog Post</span>
+                  </Button>
+                </div>
+
+                {/* Table list view */}
+                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-slate-150">
+                      <thead className="bg-slate-50/60 font-display">
+                        <tr>
+                          <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Post Details</th>
+                          <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Category</th>
+                          <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Reading Time</th>
+                          <th scope="col" className="px-6 py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 font-sans text-sm text-primary/95">
+                        {blogs.length === 0 ? (
+                          <tr>
+                            <td colSpan={4} className="px-6 py-12 text-center text-slate-400 font-medium">
+                              No blog posts found. Click &quot;Create Blog Post&quot; to add one.
+                            </td>
+                          </tr>
+                        ) : (
+                          blogs.map((blog) => (
+                            <tr key={blog.id} className="hover:bg-slate-50/50">
+                              <td className="px-6 py-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="h-10 w-16 rounded-lg overflow-hidden border border-slate-200/50 bg-slate-50 shrink-0">
+                                    <img src={blog.imageUrl} alt={blog.title} className="w-full h-full object-cover" />
+                                  </div>
+                                  <div className="flex flex-col max-w-sm truncate">
+                                    <span className="font-bold text-primary truncate">{blog.title}</span>
+                                    <span className="text-[10px] text-slate-400 mt-0.5 truncate">/{blog.slug}</span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary">
+                                  {blog.category}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 text-slate-500 text-xs">
+                                {blog.readTime}
+                              </td>
+                              <td className="px-6 py-4 text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <button
+                                    onClick={() => openEditBlogForm(blog)}
+                                    className="p-2 bg-slate-50 text-slate-500 hover:text-secondary hover:bg-secondary/5 rounded-xl transition-smooth cursor-pointer"
+                                    title="Edit Post"
+                                  >
+                                    <Edit2 className="h-4.5 w-4.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleBlogDelete(blog.id)}
+                                    className="p-2 bg-slate-50 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-smooth cursor-pointer"
+                                    title="Delete Post"
+                                  >
+                                    <Trash2 className="h-4.5 w-4.5" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             )}

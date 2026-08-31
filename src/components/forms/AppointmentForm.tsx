@@ -60,8 +60,46 @@ export const AppointmentForm: React.FC<{ className?: string; defaultTreatment?: 
     setSubmitError("");
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Map service ID to human-readable title
+      let serviceName = formData.service;
+      if (formData.service === "consult") {
+        serviceName = "General Consultation";
+      } else if (formData.service === "smile-suraksha") {
+        serviceName = "Smile Suraksha AMC Plan";
+      } else {
+        const matched = services.find((s) => s.id === formData.service);
+        if (matched) {
+          serviceName = matched.title;
+        }
+      }
+
+      // Map time slot ID to human-readable text
+      const timeSlots: Record<string, string> = {
+        "morning-1": "Morning: 10:00 AM - 11:30 AM",
+        "morning-2": "Morning: 11:30 AM - 1:00 PM",
+        "evening-1": "Evening: 5:00 PM - 6:30 PM",
+        "evening-2": "Evening: 6:30 PM - 8:00 PM",
+        "evening-3": "Evening: 8:00 PM - 9:00 PM",
+      };
+      const timeText = timeSlots[formData.time] || formData.time;
+
+      // Format WhatsApp message
+      const whatsappMessage = `New Appointment Request
+Full Name: ${formData.name}
+Mobile Number: ${formData.phone}
+Email Address: ${formData.email.trim() || "N/A"}
+Treatment/Service: ${serviceName}
+Preferred Date: ${formData.date}
+Preferred Time Slot: ${timeText}
+Dental Concern/Message: ${formData.message.trim() || "N/A"}`;
+
+      // Simulate a brief API loading delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Open WhatsApp in a new tab with the pre-filled message
+      const encodedText = encodeURIComponent(whatsappMessage);
+      window.open(`https://wa.me/919152766951?text=${encodedText}`, "_blank");
+
       setSubmitSuccess(true);
       setFormData({
         name: "",
@@ -85,7 +123,7 @@ export const AppointmentForm: React.FC<{ className?: string; defaultTreatment?: 
         
         {submitError && (
           <div className="flex items-center gap-3 p-4 bg-rose-50 border border-rose-100 text-rose-800 rounded-2xl text-sm">
-            <AlertCircle className="h-5 w-5 text-rose-600 flex-shrink-0" />
+            <AlertCircle className="h-5 w-5 text-rose-600 shrink-0" />
             <span>{submitError}</span>
           </div>
         )}
