@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
             {/* Social Icons */}
             <div className="flex items-center gap-3.5 mt-4">
               <a
-                href="https://www.facebook.com/226357221281671"
+                href="https://www.facebook.com/smiles4udentistdrmilinkandivali/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 bg-white/5 rounded-full text-slate-300 hover:text-white hover:bg-secondary transition-smooth border border-white/5"
@@ -30,7 +30,7 @@ export const Footer: React.FC = () => {
                 <Facebook className="h-4.5 w-4.5" />
               </a>
               <a
-                href="https://www.instagram.com/smiles4udentalclinic/"
+                href="https://www.instagram.com/smiles4udrmilin/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 bg-white/5 rounded-full text-slate-300 hover:text-white hover:bg-secondary transition-smooth border border-white/5"
@@ -39,7 +39,7 @@ export const Footer: React.FC = () => {
                 <Instagram className="h-4.5 w-4.5" />
               </a>
               <a
-                href="https://www.linkedin.com/company/smiles-4-u-sdic/"
+                href="https://www.linkedin.com/company/smiles-4-u-sdic/home/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 bg-white/5 rounded-full text-slate-300 hover:text-white hover:bg-secondary transition-smooth border border-white/5"
@@ -48,7 +48,7 @@ export const Footer: React.FC = () => {
                 <Linkedin className="h-4.5 w-4.5" />
               </a>
               <a
-                href="https://www.youtube.com/channel/UCjqm4OIta6wQ5GbRAk99ULQ/videos"
+                href="https://www.youtube.com/@smiles4udrmillindesai"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 bg-white/5 rounded-full text-slate-300 hover:text-white hover:bg-secondary transition-smooth border border-white/5"
@@ -73,6 +73,9 @@ export const Footer: React.FC = () => {
               </Link>
               <Link href="/treatments" className="font-sans text-sm text-slate-300 hover:text-accent-gold transition-smooth">
                 Treatments
+              </Link>
+              <Link href="/blog" className="font-sans text-sm text-slate-300 hover:text-accent-gold transition-smooth">
+                Dental Blogs
               </Link>
               <Link href="/gallery" className="font-sans text-sm text-slate-300 hover:text-accent-gold transition-smooth">
                 Filterable Gallery

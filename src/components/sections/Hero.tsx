@@ -1,42 +1,38 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import { Sparkles, Award, ShieldCheck, Heart } from "lucide-react";
 import Button from "../ui/Button";
 import { ScrollReveal } from "../ui/ScrollReveal";
 
 export const Hero: React.FC = () => {
-  const [videoSrc, setVideoSrc] = useState<string>("");
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // Load 3MB background video after the initial page mount
-    // This prioritizes Largest Contentful Paint (LCP) and visual interactivity
-    const timer = setTimeout(() => {
-      setVideoSrc("/hero_bg_vid.mp4");
-    }, 50);
-    return () => clearTimeout(timer);
+    if (videoRef.current) {
+      videoRef.current.defaultMuted = true;
+      videoRef.current.muted = true;
+      videoRef.current.play().catch((err) => {
+        console.log("Autoplay caught:", err);
+      });
+    }
   }, []);
 
   return (
     <section className="relative overflow-x-hidden min-h-screen flex flex-col justify-center pt-28 pb-20 md:pt-36 md:pb-28 bg-slate-50">
-      {/* Background Video with smooth fade-in */}
-      {videoSrc && (
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 transition-opacity duration-1000 ease-in-out"
-          style={{ opacity: isLoaded ? 1 : 0 }}
-          onPlay={() => setIsLoaded(true)}
-          onLoadedData={() => setIsLoaded(true)}
-        >
-          <source src={videoSrc} type="video/mp4" />
-        </video>
-      )}
+      {/* Background Video */}
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+      >
+        <source src="/hero_bg_vid.mp4" type="video/mp4" />
+      </video>
 
       {/* Background overlay for text readability: subtle gradient that keeps the background smile artwork fully visible and sharp */}
       <div className="absolute inset-0 bg-gradient-to-r from-white/75 via-white/40 to-transparent pointer-events-none z-10" />
@@ -55,9 +51,9 @@ export const Hero: React.FC = () => {
 
             <ScrollReveal delay={0.2}>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold text-primary leading-tight">
-                We are here to Take care of <br />
+                Trusted Dentist in Kandivali West —{" "}
                 <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
-                  Your Smile
+                  Painless Implants &amp; Smile Makeovers Since 1997
                 </span>
               </h1>
             </ScrollReveal>

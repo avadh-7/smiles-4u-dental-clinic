@@ -3,6 +3,7 @@ import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   title:
     "Smiles 4U Dental | Smile Makeover & Implants Centre | Kandivali West, Mumbai",
   description:
-    "Smile Makeover and Implants Centre. Crafting bright, healthy smiles since 1997. Dr. Millin D. Desai and team provide implants, painless root canals, and cosmetic veneers in Kandivali West.",
+    "Dr. Millin D. Desai's implant & smile makeover clinic in Kandivali West, Mumbai. 29+ years, painless root canals, laser dentistry. Book your consult today.",
   keywords: [
     "Dentist in Kandivali",
     "Implant dentist Mumbai",
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
     title:
       "Smiles 4U Dental | Smile Makeover & Implants Centre | Dentist in Kandivali",
     description:
-      "Modern, painless dental treatments led by Dr. Millin D. Desai. Implants, smile makeovers, root canals, and clear aligners in Kandivali West since 1997.",
+      "Dr. Millin D. Desai's implant & smile makeover clinic in Kandivali West, Mumbai. 29+ years, painless root canals, laser dentistry. Book your consult today.",
     url: "https://smiles4udentalclinic.in",
     type: "website",
   },
@@ -43,6 +44,58 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Dentist",
+  "name": "Smiles 4 U Speciality Dental Implant Centre",
+  "image": "https://www.smiles4u-dental.com/logo.jpg",
+  "url": "https://www.smiles4u-dental.com",
+  "telephone": "+91-91527-66951",
+  "priceRange": "$$",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Shop 1, Rashmi Tara CHS, Opposite Dutt Mandir, Dahanukarwadi",
+    "addressLocality": "Kandivali West, Mumbai",
+    "postalCode": "400067",
+    "addressCountry": "IN",
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ],
+      "opens": "10:00",
+      "closes": "13:30",
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ],
+      "opens": "17:00",
+      "closes": "21:00",
+    },
+  ],
+  "founder": "Dr. Millin D. Desai",
+  "sameAs": [
+    "https://www.facebook.com/smiles4udentistdrmilinkandivali/",
+    "https://www.instagram.com/smiles4udrmilin/",
+    "https://www.linkedin.com/company/smiles-4-u-sdic/home/",
+    "https://www.youtube.com/@smiles4udrmillindesai",
+  ],
 };
 
 export default function RootLayout({
@@ -55,10 +108,17 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${outfit.variable} h-full antialiasedScroll`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-lavender-bg text-primary">
         <Header />
         <main className="flex-grow">{children}</main>
         <Footer />
+        <WhatsAppButton />
       </body>
     </html>
   );

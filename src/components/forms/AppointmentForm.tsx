@@ -98,7 +98,7 @@ Dental Concern/Message: ${formData.message.trim() || "N/A"}`;
 
       // Open WhatsApp in a new tab with the pre-filled message
       const encodedText = encodeURIComponent(whatsappMessage);
-      window.open(`https://wa.me/919152766951?text=${encodedText}`, "_blank");
+      window.open(`https://wa.me/917303635131?text=${encodedText}`, "_blank");
 
       setSubmitSuccess(true);
       setFormData({

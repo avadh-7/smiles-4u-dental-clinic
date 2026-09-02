@@ -39,6 +39,7 @@ export const Header: React.FC = () => {
     { label: "About Us", href: "/about" },
     { label: "Treatments", href: "/treatments" },
     { label: "Gallery", href: "/gallery" },
+    { label: "Blogs", href: "/blog" },
     { label: "Contact Us", href: "/contact" },
   ];
 
@@ -59,7 +60,7 @@ export const Header: React.FC = () => {
             {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center gap-2">
               {navLinks.map((link) => {
-                const isActive = pathname === link.href;
+                const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
                 return (
                   <Link
                     key={link.href}
@@ -146,7 +147,7 @@ export const Header: React.FC = () => {
               {/* Mobile links list */}
               <div className="flex flex-col gap-3.5 flex-grow">
                 {navLinks.map((link) => {
-                  const isActive = pathname === link.href;
+                  const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
                   return (
                     <Link
                       key={link.href}
