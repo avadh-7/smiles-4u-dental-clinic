@@ -3,7 +3,7 @@ import { getTreatments } from "@/app/actions/treatments";
 import { getBlogs } from "@/app/actions/blogs";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://smiles4udentalclinic.in";
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.smiles4u-dental.com").replace(/\/$/, "");
 
   // Core static pages
   const staticRoutes: MetadataRoute.Sitemap = [

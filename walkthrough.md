@@ -41,14 +41,22 @@ We have fully rebuilt and modernized the website for **Smiles 4 U Speciality Den
 
 ---
 
-### Phase 11 Official Floating WhatsApp & Number Integration
+### Phase 12 Domain & Sitemap Sitelink Migration
 
-1. **Floating WhatsApp Button Component (`WhatsAppButton.tsx`):**
-   - Built a custom button in `src/components/ui/WhatsAppButton.tsx` styled with the official WhatsApp green `#25D366`, drop shadow, hover scaling, subtle pulsing ping effect, and an authentic white SVG WhatsApp icon.
-   - Positioned fixed in the bottom-right viewport (`bottom-6 right-6 z-50`).
-   - Configured with a pre-filled greeting message linking directly to:
-     `https://wa.me/917303635131?text=Hi%20Smiles%204%20U%20Dental%20Clinic...`
-   - Rendered site-wide in `src/app/layout.tsx`.
+1. **Sitemap Base URL Update (`src/app/sitemap.ts`):**
+   - Updated the base URL in `src/app/sitemap.ts` to `https://www.smiles4u-dental.com/`.
+   - All generated route entries now point to:
+     - `https://www.smiles4u-dental.com/`
+     - `https://www.smiles4u-dental.com/about`
+     - `https://www.smiles4u-dental.com/treatments`
+     - `https://www.smiles4u-dental.com/treatments/[id]`
+     - `https://www.smiles4u-dental.com/blog`
+     - `https://www.smiles4u-dental.com/blog/[slug]`
+     - `https://www.smiles4u-dental.com/gallery`
+     - `https://www.smiles4u-dental.com/contact`
 
-2. **Form Redirection Updated:**
-   - Updated `src/components/forms/AppointmentForm.tsx` to route all completed booking form submissions to WhatsApp on `+91 73036 35131` (`https://wa.me/917303635131?text=...`).
+2. **Robots.txt Base URL Update (`src/app/robots.ts`):**
+   - Configured `robots.ts` to reference `https://www.smiles4u-dental.com/sitemap.xml`.
+
+3. **OpenGraph & Schema Meta Alignment (`src/app/layout.tsx`):**
+   - Updated canonical OpenGraph `url` to `https://www.smiles4u-dental.com`.

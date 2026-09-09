@@ -37,7 +37,7 @@ export const metadata: Metadata = {
       "Smiles 4U Dental | Smile Makeover & Implants Centre | Dentist in Kandivali",
     description:
       "Dr. Millin D. Desai's implant & smile makeover clinic in Kandivali West, Mumbai. 29+ years, painless root canals, laser dentistry. Book your consult today.",
-    url: "https://smiles4udentalclinic.in",
+    url: "https://www.smiles4u-dental.com",
     type: "website",
   },
   robots: {
