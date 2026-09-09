@@ -1,5 +1,6 @@
 import React from "react";
-import { Award, ShieldCheck, Heart, Sparkles, Building } from "lucide-react";
+import Link from "next/link";
+import { Award, ShieldCheck, Heart, Sparkles, Building, ChevronRight } from "lucide-react";
 import DoctorsGrid from "@/components/sections/DoctorsGrid";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
@@ -47,11 +48,20 @@ export default function About() {
                   Crafting Bright Smiles in Kandivali Since 1997
                 </h2>
                 <p className="font-sans text-slate-600 text-sm md:text-base leading-relaxed">
-                  Smiles 4 U Speciality Dental Implant Centre was established in 1997 with a simple vision: to offer international-standard dental care that is gentle, reliable, and completely personalized. Under the leadership of chief dentist <strong className="font-bold">Dr. Millin D. Desai</strong>, we have grown into one of Mumbai's most trusted clinics.
+                  Smiles 4 U Speciality Dental Implant Centre was established in 1997 with a simple vision: to offer international-standard dental care that is gentle, reliable, and completely personalized. Under the leadership of chief dentist <strong className="font-bold">Dr. Millin D. Desai</strong>, we have grown into one of Mumbai&apos;s most trusted clinics.
                 </p>
                 <p className="font-sans text-slate-600 text-sm md:text-base leading-relaxed">
                   We believe that dental visits should be stress-free. That is why we invest heavily in digital scanning workflows and painless rotary procedures. We focus not just on treating immediate problems, but on establishing long-term preventative care to safeguard your teeth for a lifetime.
                 </p>
+                <div>
+                  <Link
+                    href="/dr-milin"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-secondary text-white rounded-xl font-display font-bold text-sm shadow-md shadow-secondary/20 hover:bg-secondary/90 transition-smooth"
+                  >
+                    <span>View Dr. Milin D. Desai&apos;s Full Profile &amp; Awards</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </div>
                 <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3">
                   <ShieldCheck className="h-6 w-6 text-emerald-600 flex-shrink-0" />
                   <span className="font-sans text-xs md:text-sm text-emerald-800 font-semibold">

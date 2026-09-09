@@ -16,9 +16,9 @@ export const doctors: Doctor[] = [
     role: "Dentist",
     specialty: "Dental Implants, Aesthetic Rehabilitation & Cosmetic Makeovers",
     bio: "Dr. Millin D. Desai has been practicing dentistry since 1997, dedicated to offering exceptional dental care. Over the past 25+ years, he has successfully treated thousands of patients, building a reputation as one of the premier dental implant and cosmetic specialists in Kandivali West, Mumbai. He integrates state-of-the-art dental technology with a gentle, patient-centric clinical approach.",
-    experience: "25+ Years of Clinical Excellence",
-    education: "BDS, Specialization in Dental Implants & Aesthetic Dentistry",
-    imageUrl: "/doctor.webp"
+    experience: "28+ Years of Clinical Excellence",
+    education: "BDS (Nair Hospital Dental College, 1997), Diploma in Oral Implantology (University of France)",
+    imageUrl: "/dr_milin_1.webp"
   },
   {
     id: "dr-komal",
@@ -28,7 +28,7 @@ export const doctors: Doctor[] = [
     bio: "Dr. Komal is a highly compassionate general dentist specializing in comprehensive restorative care, cosmetic bonding, and preventive treatments. She works closely with patients of all age groups to establish healthy dental habits.",
     experience: "8+ Years of Experience",
     education: "BDS, General Dental Practitioner",
-    imageUrl: "/dummy_dentist.webp"
+    imageUrl: "/female_doctor.webp"
   },
   {
     id: "dr-bhagyashree",
@@ -38,7 +38,7 @@ export const doctors: Doctor[] = [
     bio: "Dr. Bhagyashree focuses on conservative treatments, prioritizing natural tooth preservation. She is highly skilled in dental prophylaxis, cleanings, tooth sealants, and restoring teeth utilizing aesthetic composite fillings.",
     experience: "7+ Years of Experience",
     education: "BDS, General Dental Practitioner",
-    imageUrl: "/dummy_dentist.webp"
+    imageUrl: "/female_doctor.webp"
   },
   {
     id: "dr-rohit-a",

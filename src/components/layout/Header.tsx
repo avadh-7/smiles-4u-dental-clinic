@@ -37,6 +37,7 @@ export const Header: React.FC = () => {
   const navLinks = [
     { label: "Home", href: "/" },
     { label: "About Us", href: "/about" },
+    { label: "Dr. Milin", href: "/dr-milin" },
     { label: "Treatments", href: "/treatments" },
     { label: "Gallery", href: "/gallery" },
     { label: "Blogs", href: "/blog" },
@@ -50,7 +51,7 @@ export const Header: React.FC = () => {
           scrolled || pathname !== "/" ? "glass-nav shadow-sm py-3" : "bg-transparent py-5"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex-shrink-0">
@@ -58,7 +59,7 @@ export const Header: React.FC = () => {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-2">
+            <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
                 return (

@@ -62,8 +62,8 @@ export const WhyChooseUs: React.FC = () => {
             <ScrollReveal delay={0.2} yOffset={30} className="w-full max-w-lg">
               <div className="rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-50 relative aspect-[4/3] w-full">
                 <img
-                  src="/doctor.webp"
-                  alt="Dr. Millin D. Desai holding Outreach Dental Award 2022"
+                  src="/dr_milin_1.webp"
+                  alt="Dr. Millin D. Desai - Chief Implant Dentist"
                   className="w-full h-full object-cover"
                 />
               </div>

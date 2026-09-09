@@ -71,6 +71,9 @@ export const Footer: React.FC = () => {
               <Link href="/about" className="font-sans text-sm text-slate-300 hover:text-accent-gold transition-smooth">
                 About Us
               </Link>
+              <Link href="/dr-milin" className="font-sans text-sm text-slate-300 hover:text-accent-gold transition-smooth">
+                Dr. Milin D. Desai
+              </Link>
               <Link href="/treatments" className="font-sans text-sm text-slate-300 hover:text-accent-gold transition-smooth">
                 Treatments
               </Link>
